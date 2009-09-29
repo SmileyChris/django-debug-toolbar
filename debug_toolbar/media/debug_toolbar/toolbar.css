@@ -337,6 +337,16 @@
 	cursor:pointer;
 }
 
+#djDebug .djTemplateHiddenContext {
+	display:none;
+}
+
+#djDebug .djTemplateHiddenContext li {
+	background:#fff;
+	padding:0 .25em .25em;
+	margin-bottom:1em;
+}
+
 #djDebug .djDebugSqlWrap {
 	position:relative;
 }

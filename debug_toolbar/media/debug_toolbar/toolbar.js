@@ -7,20 +7,21 @@ jQuery(function($j) {
 	$j.extend($j.djDebug, {
 		init: function() {
 			var current = null;
-			$j('#djDebugPanelList li a').click(function() {
+			$j('#djDebugPanelList li a, #djDebugTemplatePanel .djTemplateHiddenContext a').click(function() {
 				if (!this.className) {
 					return false;
 				}
 				current = $j('#djDebug #' + this.className);
+				var panel_li = $j('#djDebugPanelList li a.' + this.className).parent()
 				if (current.is(':visible')) {
 				    $j(document).trigger('close.djDebug');
-					$j(this).parent().removeClass('active');
+					panel_li.removeClass('active');
 				} else {
 					$j('.panelContent').hide(); // Hide any that are already open
 					current.show();
 					$j.djDebug.open();
 					$j('#djDebugToolbar li').removeClass('active');
-					$j(this).parent().addClass('active');
+					panel_li.addClass('active');
 				}
 				return false;
 			});

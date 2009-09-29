@@ -19,7 +19,18 @@
 	{% if template.context %}
 	<dd>
 		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
-		<div class="djTemplateHideContextDiv" style="display:none;"><pre>{{ template.context }}</pre></div>
+		<ol class="djTemplateHiddenContext">
+		{% for depth,context_layer in template.context %}
+			<li>
+		    <dl>
+		    {% for key,value in context_layer %}
+				<dt>{{ key }}</dt>
+				<dd><pre>{{ value }}</pre></dd>
+			{% endfor %}
+			</dl>
+			</li>
+		{% endfor %}
+		</ol>
 	</dd>
 	{% endif %}
 {% endfor %}

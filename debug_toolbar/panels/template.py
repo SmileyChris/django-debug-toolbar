@@ -8,6 +8,7 @@ from django.dispatch import Signal
 from django.template.context import get_standard_processors
 from django.template.loader import render_to_string
 from django.test.signals import template_rendered
+from django.utils.html import escape, mark_safe
 from django.utils.translation import ugettext_lazy as _
 from debug_toolbar.panels import DebugPanel
 
@@ -82,22 +83,30 @@ class TemplateDebugPanel(DebugPanel):
                 context_data = template_data.get('context', None)
 
                 context_list = []
-                for context_layer in context_data.dicts:
-                    for key, value in context_layer.items():
+                for depth, context_layer in enumerate(context_data.dicts):
+                    safe_context_layer = []
+                    for key, value in context_layer.iteritems():
                         # Replace any request elements - they have a large
                         # unicode representation and the request data is
                         # already made available from the Request Vars panel.
                         if isinstance(value, http.HttpRequest):
-                            context_layer[key] = '<<request>>' 
+                            value = '<a href="#" class="djDebugRequestVarsPanel">%s instance</a>' % escape(type(value)) 
                         # Replace the debugging sql_queries element. The SQL
                         # data is already made available from the SQL panel.
                         elif key == 'sql_queries' and isinstance(value, list):
-                            context_layer[key] = '<<sql_queries>>' 
-                    try:
-                        context_list.append(pformat(context_layer))
-                    except UnicodeEncodeError:
-                        pass
-                info['context'] = '\n'.join(context_list)
+                            value = '<a href="#" class="djDebugSQLPanel">list of SQL queries</a>'
+                        # Otherwise, just format and escape the value.
+                        else:
+                            try:
+                                value = pformat(value)
+                            except UnicodeEncodeError:
+                                value = '<value could not be encoded to unicode>'
+                            value = escape(value)
+                        safe_context_layer.append((key, mark_safe(value)))
+
+                    safe_context_layer.sort()
+                    context_list.append((depth, safe_context_layer))
+                info['context'] = context_list
             template_context.append(info)
         context = {
             'templates': template_context,
